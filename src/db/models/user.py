@@ -11,7 +11,7 @@ class User(Base):
     username = Column(String(50), unique=True)
     surname = Column(String(50))
     email = Column(String(120), unique=True)
-    _password = Column("password", String(120), nullable=False)
+    password_hash = Column("password", String(120), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
     isverified = Column(Boolean, default=False, nullable=False)
@@ -23,7 +23,7 @@ class User(Base):
 
     @password.setter
     def password(self, password):
-        self._password = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self._password, password)
+        return check_password_hash(self.password_hash, password)
