@@ -13,6 +13,6 @@ class Bascet(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
     
-    user = Relationship("User", back_populates="bascet")
+    user = Relationship("User", back_populates="bascet", uselist=False)
     smartphone = Relationship("Smartphone", back_populates="bascet")
     
