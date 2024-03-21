@@ -21,3 +21,4 @@ class Smartphone(Base):
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
     
     user = Relationship("User", back_populates="smartphones")
+    basket = Relationship("Basket", back_populates="smartphones", secondary="basket_smartphone_association")
