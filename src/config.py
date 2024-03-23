@@ -1,4 +1,7 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings
+
+project_dir = Path(__file__).parent
 
 class Settings(BaseSettings):
     """
@@ -9,6 +12,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+    DB_PATH: Path = project_dir / "db"
 
     class Config:
         """

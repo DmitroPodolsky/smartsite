@@ -4,3 +4,5 @@ __pycache__
 *.pyc
 .vscode
 data
+src/db/migrations/versions/*
+!src/db/migrations/versions/.gitkeep
