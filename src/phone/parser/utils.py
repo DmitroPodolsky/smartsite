@@ -1,4 +1,7 @@
 from bs4 import BeautifulSoup
+from aiohttp import ClientSession
+
+from models import SmartphoneCharacteristics
 
 
 def get_photo_url(soup: BeautifulSoup) -> list[str]:
@@ -10,7 +13,7 @@ def get_photo_url(soup: BeautifulSoup) -> list[str]:
     """
     photo = []
     picture_urls = soup.find_all("img", class_="ProductSlider-module__image___1qhoG")
-    for picture_url in picture_urls:
+    for picture_url in picture_urls[:4]:
         src = picture_url.get('src')
         photo.append(src)
     return photo
@@ -38,7 +41,7 @@ def get_price(soup: BeautifulSoup) -> int:
     return int(price)
 
 
-def get_characteristics(soup: BeautifulSoup) -> dict[dict[str]]:
+def get_characteristics(soup: BeautifulSoup) -> SmartphoneCharacteristics:
     """
     Extracts the characteristics of the product from the BeautifulSoup object representing a webpage.
 
@@ -46,19 +49,23 @@ def get_characteristics(soup: BeautifulSoup) -> dict[dict[str]]:
         soup: The BeautifulSoup object representing the webpage.
     """
     characteristics_divs = soup.find_all("div", class_="Characteristic_characteristic__NGJor")
-
-    characteristics = {}
+    smartphone_characteristics = SmartphoneCharacteristics()
 
     for div in characteristics_divs:
-        category = div.find_previous_sibling("h3", class_="pt8").get_text(strip=True)
         category_data = {span.get_text(strip=True): p.get_text(strip=True) 
                         for span, p in zip(div.find_all('span'), div.find_all('p'))}
-        characteristics[category] = category_data
+        
+        for key, value in category_data.items():
+            english_key = smartphone_characteristics.ukrainian_to_english.get(key)
+            if english_key and english_key in smartphone_characteristics.__dict__:
+                setattr(smartphone_characteristics, english_key, value)
+            else:
+                print(f"Warning: Unknown characteristic '{key}'")
 
-    return characteristics
+    return smartphone_characteristics
 
 
-def get_execute_time(start_time: float, end_time: float) -> list[int, int, int]:
+def get_execute_time(start_time: float, end_time: float) -> None:
     """
     Calculates the execution time in minutes, seconds, and milliseconds.
 
@@ -71,4 +78,16 @@ def get_execute_time(start_time: float, end_time: float) -> list[int, int, int]:
     minutes = int(execution_time // 60)
     seconds = int(execution_time % 60)
     milliseconds = int((execution_time - int(execution_time)) * 1000)
-    return minutes, seconds, milliseconds
+    print(f"Execution time: {minutes}:{seconds}:{milliseconds}")
+
+
+async def fetch_html_from_url(session: ClientSession, url: str) -> str:
+    """
+    Fetches HTML content from the specified URL asynchronously.
+
+    Args:
+        session: The aiohttp ClientSession object.
+        url: The URL from which to fetch HTML content.
+    """
+    async with session.get(url) as response:
+        return await response.text()
