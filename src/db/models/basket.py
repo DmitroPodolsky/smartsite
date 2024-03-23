@@ -9,7 +9,6 @@ class Bascet(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     smartphone_id = Column(Integer, ForeignKey('smartphones.id'), nullable=False)
-    smartphones = Column(JSON, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
     
